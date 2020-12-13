@@ -390,3 +390,49 @@ class MainActivity : AppCompatActivity() {
         }
         brushDialog.show()
 ```
+
+# Layer-List, in drawable
+
+- Use `Layer-List` if you want to nest different shapes on top of each other.
+- drawable/pallet_normal
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <stroke
+                android:shape="rectangle"
+                android:color="#FF9999"/>
+            <solid
+                android:color="#00000000"/>
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <stroke
+                android:width="2dp"
+                android:color="#FF9999"/>
+            <solid
+                android:color="#00000000"/>
+            <corners
+                android:radius="10dp"/>
+        </shape>
+    </item>
+</layer-list>
+```
+
+# LinearLayout, retrieve child element
+
+```kotlin
+//llPaintColors is linearlayout. you can retrieve its element as if it were array
+mImageButtonCurrentPaint = llPaintColors[1] as ImageButton
+```
+
+# Get Drawable Resource
+
+```kotlin
+mImageButtonCurrentPaint!!.setImageDrawable(
+        ContextCompat.getDrawable(this, R.drawable.pallet_pressed)
+)
+```
