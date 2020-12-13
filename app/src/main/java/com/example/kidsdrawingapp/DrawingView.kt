@@ -26,6 +26,9 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
     private var mBrushSize: Float = 0.toFloat()
     private var color: Int = Color.BLACK
 
+    // ** persistent drawing **
+    private val mPaths = ArrayList<CustomPath>()
+
     init {
         setUpDrawing()
     }
@@ -54,12 +57,22 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
     // draw something
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+
         canvas.drawBitmap(mCanvasBitmap!!, 0f, 0f, mCanvasPaint)
+
+        // ** persistent drawing **
+        for(path in mPaths) {
+            mDrawPaint!!.strokeWidth = path.brushThickness
+            mDrawPaint!!.color = path.color
+            canvas.drawPath(path, mDrawPaint!!)
+        }
+
         if(!mDrawPath!!.isEmpty) {
             mDrawPaint!!.strokeWidth = mDrawPath!!.brushThickness
             mDrawPaint!!.color = mDrawPath!!.color
             canvas.drawPath(mDrawPath!!, mDrawPaint!!)
         }
+
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -84,7 +97,11 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
                 }
             }
             MotionEvent.ACTION_UP -> {
+                // ** persistent drawing **
+                mPaths.add(mDrawPath!!)
+
                 mDrawPath = CustomPath(color, mBrushSize)
+
             }
             else -> return false
         }
