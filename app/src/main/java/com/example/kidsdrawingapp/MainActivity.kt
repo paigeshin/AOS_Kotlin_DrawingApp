@@ -3,7 +3,9 @@ package com.example.kidsdrawingapp
 import android.app.Dialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import kotlinx.android.synthetic.main.activity_main.*
@@ -52,6 +54,24 @@ class MainActivity : AppCompatActivity() {
             brushDialog.dismiss()
         }
         brushDialog.show()
+    }
+
+    fun paintClicked(view: View) {
+        //이미 선택된 버튼이 아니라면 ...
+        if(view !== mImageButtonCurrentPaint) {
+            val imagebutton = view as ImageButton
+            val colorTag = imagebutton.tag.toString()
+            drawingView.setColor(colorTag)
+            //change current the color of selected button
+            imagebutton.setImageDrawable(
+                    ContextCompat.getDrawable(this, R.drawable.pallet_pressed)
+            )
+            mImageButtonCurrentPaint!!.setImageDrawable(
+                    ContextCompat.getDrawable(this, R.drawable.pallet_normal)
+            )
+            mImageButtonCurrentPaint = view
+        }
+
     }
 
 }

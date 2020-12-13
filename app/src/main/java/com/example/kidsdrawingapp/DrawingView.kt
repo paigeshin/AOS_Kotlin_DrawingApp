@@ -116,6 +116,12 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
         mDrawPaint!!.strokeWidth = mBrushSize
     }
 
+    // set Color
+    fun setColor(newColor: String) {
+        color = Color.parseColor(newColor)
+        mDrawPaint!!.color = color
+    }
+
     // internal: only available in DrawingView class
     // inner: use outer class's properties
     // for declaring properties and initializing them from the primary constructor, Kotlin has a concise syntax:
