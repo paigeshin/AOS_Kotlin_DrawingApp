@@ -439,6 +439,8 @@ mImageButtonCurrentPaint!!.setImageDrawable(
 
 # Implement Colors
 
+@keyword ⇒ `color picker`
+
 - MainActivity
 
 ```kotlin
@@ -656,5 +658,83 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
 
     }
 
+}
+```
+
+# UIComponents to check out
+
+- Snackbar
+- custom progress bar
+
+# Permission
+
+```kotlin
+private fun requestStoragePermission() {
+    val permission = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    val permissionString = permission.toString()
+    if(ActivityCompat.shouldShowRequestPermissionRationale(this, permissionString)) {
+        Toast.makeText(this, "Need permission to add a Background image", Toast.LENGTH_SHORT).show()
+    }
+    ActivityCompat.requestPermissions(this, permission, STORAGE_PERMISSION_CODE)
+}
+
+override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    if(requestCode == STORAGE_PERMISSION_CODE) {
+        if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Permission granted now you can read the storage files", Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(this, "Oops you just denied the permission.", Toast.LENGTH_LONG).show()
+        }
+//            if(grantResults.isNotEmpty() && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+//                Toast.makeText(this, "Permission granted now you can write the storage files", Toast.LENGTH_LONG).show()
+//            }
+    }
+}
+
+private fun isReadStorageAllowed() : Boolean {
+    val result = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+    return result == PackageManager.PERMISSION_GRANTED
+}
+```
+
+# onActivityForResult for gallery
+
+```kotlin
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_main)
+
+    ibGallery.setOnClickListener {
+        if(isReadStorageAllowed()) {
+            // run our code to get the image from the gallery
+            // pick image from gallery
+            val pickPhotoIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            startActivityForResult(pickPhotoIntent, GALLERY)
+        } else {
+            requestStoragePermission()
+        }
+    }
+
+}
+
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    if(resultCode == Activity.RESULT_OK) {
+        if(requestCode == GALLERY) {
+            try {
+                if(data != null) {
+                    if(data.data != null) {
+                        ivBackground.visibility = View.VISIBLE
+                        ivBackground.setImageURI(data.data) //URI of your device
+                        return
+                    }
+                }
+                Toast.makeText(this, "Error in parseing the image or it's corrupted.", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception){
+                e.printStackTrace()
+            }
+        }
+    }
 }
 ```
