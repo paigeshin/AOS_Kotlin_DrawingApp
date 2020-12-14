@@ -780,12 +780,14 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) 
 
                     <category android:name="android.intent.category.LAUNCHER" />
                 </intent-filter>
+
             </activity>
-    			
-    				<!-- Provice created xml path using `provider` -->
+
             <provider
                 android:authorities="com.example.kidsdrawingapp.fileprovider"
-                android:name="androidx.core.content.FileProvider">
+                android:name="androidx.core.content.FileProvider"
+                android:exported="false"
+                android:grantUriPermissions="true">
                 <meta-data
                     android:name="android.support.FILE_PROVIDER_PATHS"
                     android:resource="@xml/path" />
@@ -815,3 +817,157 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) 
         return returnedBitmap
     }
     ```
+
+3. Write code using AsyncTask
+
+    ```kotlin
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        ibSave.setOnClickListener {
+            if(isReadStorageAllowed()) {
+                BitmapAsyncTask(getBitmapFromView(flDrawingViewContainer)).execute()
+            } else {
+                requestStoragePermission()
+            }
+        }
+
+    }
+
+    private fun requestStoragePermission() {
+            val permission = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            val permissionString = permission.toString()
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, permissionString)) {
+                Toast.makeText(this, "Need permission to add a Background image", Toast.LENGTH_SHORT).show()
+            }
+            ActivityCompat.requestPermissions(this, permission, STORAGE_PERMISSION_CODE)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    	  super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    	  if(requestCode == STORAGE_PERMISSION_CODE) {
+    	      if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+    	          Toast.makeText(this, "Permission granted now you can read the storage files", Toast.LENGTH_LONG).show()
+    	      } else {
+    	          Toast.makeText(this, "Oops you just denied the permission.", Toast.LENGTH_LONG).show()
+    	      }
+    	//            if(grantResults.isNotEmpty() && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+    	//                Toast.makeText(this, "Permission granted now you can write the storage files", Toast.LENGTH_LONG).show()
+    	//            }
+    	  }
+    }
+
+    private fun getBitmapFromView(view: View) : Bitmap {
+          val returnedBitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+          val canvas = Canvas(returnedBitmap) // prepare for canvas
+
+          //if there's a background, draw on the canvas
+          val bgDrawable = view.background
+          if(bgDrawable != null) {
+              bgDrawable.draw(canvas)
+          } else {
+              canvas.drawColor(Color.WHITE)
+          }
+          view.draw(canvas)
+
+          return returnedBitmap
+    }
+
+    private inner class BitmapAsyncTask(val mBitmap: Bitmap) : AsyncTask<Any, Void, String>() {
+
+    	  override fun doInBackground(vararg params: Any?): String {
+    	
+    	      var result = ""
+    	
+    	      //save file into the background
+    	      try {
+    	          val bytes:ByteArrayOutputStream = ByteArrayOutputStream()
+    	          mBitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes)
+    	          val file = File(
+    	                      externalCacheDir!!.absoluteFile.toString()
+    	                      + File.separator + "KidDrawingApp_" + System.currentTimeMillis() / 1000
+    	                      + ".png"
+    	                  )
+    	          val fileOutput = FileOutputStream(file)
+    	          fileOutput.write(bytes.toByteArray())
+    	          fileOutput.close()
+    	          result = file.absolutePath
+    	      } catch (e: Exception) {
+    	          result = ""
+    	          e.printStackTrace()
+    	      }
+    	
+    	      return result
+    	  }
+    	
+    	  override fun onPostExecute(result: String?) {
+    	      super.onPostExecute(result)
+    	
+    	      if(!result!!.isEmpty()) {
+    	          Toast.makeText(applicationContext, "File saved successfully :$result", Toast.LENGTH_SHORT).show()
+    	      } else {
+    	          Toast.makeText(applicationContext, "Something went wrong while saving the file. :$result", Toast.LENGTH_SHORT).show()
+    	      }
+    	
+    	  }
+
+    }
+    ```
+
+### Grant Permission Error
+
+`java.lang.SecurityException: Provider must grant uri permissions`
+
+```xml
+<!-- add grantUriPermissions -->
+<provider
+    android:authorities="com.example.kidsdrawingapp.fileprovider"
+    android:name="androidx.core.content.FileProvider"
+    android:exported="false"
+    android:grantUriPermissions="true">
+    <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/path" />
+</provider>
+```
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.kidsdrawingapp">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.KidsDrawingApp">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <provider
+            android:authorities="com.example.kidsdrawingapp.fileprovider"
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/path" />
+        </provider>
+
+    </application>
+
+</manifest>
+```
