@@ -971,3 +971,59 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) 
 
 </manifest>
 ```
+
+# Add Custom ProgressBar
+
+- custom_progress_bar.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<!--TODO(Step 1 : Creating a view for custom progress dialog)-->
+<!--START-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textView"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="Please Wait..."
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/progressBar"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+<!--END-->
+```
+
+```kotlin
+// ** custom progress bar **
+private fun showProgressDialog() {
+    mProgressDialog = Dialog(this@MainActivity)
+    mProgressDialog.setContentView(R.layout.custom_progress_bar)
+    mProgressDialog.show()
+}
+
+// ** custom progress bar **
+private fun cancelProgressDialog() {
+    mProgressDialog.dismiss()
+}
+```
