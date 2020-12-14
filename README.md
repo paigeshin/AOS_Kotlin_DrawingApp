@@ -738,3 +738,7 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) 
     }
 }
 ```
+
+# ImageView
+
+- centerCrop - aspect fill

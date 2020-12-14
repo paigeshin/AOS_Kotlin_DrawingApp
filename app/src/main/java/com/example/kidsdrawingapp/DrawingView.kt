@@ -29,9 +29,18 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
 
     // ** persistent drawing **
     private val mPaths = ArrayList<CustomPath>()
+    // ** undo path **
+    private val mUndoPaths = ArrayList<CustomPath>()
 
     init {
         setUpDrawing()
+    }
+
+    fun onClickUndo() {
+        if(mPaths.size > 0) {
+            mUndoPaths.add(mPaths.removeAt(mPaths.size - 1))
+            invalidate()
+        }
     }
 
     private fun setUpDrawing() {
