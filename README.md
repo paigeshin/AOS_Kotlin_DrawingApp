@@ -742,3 +742,76 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) 
 # ImageView
 
 - centerCrop - aspect fill
+
+# Save Image into the local
+
+1. Create `path.xml` in res folder
+
+    ```xml
+    <?xml version="1.0" encoding="utf-8"?>
+    <paths xmlns:android="http://schemas.android.com/apk/res/android">
+        <external-path
+            name="captured"
+            path="Android/data/com.example.kidsdrawingapp/files" />
+    </paths>
+    ```
+
+2. write it down on manifest
+
+    ```xml
+    <?xml version="1.0" encoding="utf-8"?>
+    <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        package="com.example.kidsdrawingapp">
+
+        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+        <application
+            android:allowBackup="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:supportsRtl="true"
+            android:theme="@style/Theme.KidsDrawingApp">
+            <activity android:name=".MainActivity"
+                android:screenOrientation="portrait">
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN" />
+
+                    <category android:name="android.intent.category.LAUNCHER" />
+                </intent-filter>
+            </activity>
+    			
+    				<!-- Provice created xml path using `provider` -->
+            <provider
+                android:authorities="com.example.kidsdrawingapp.fileprovider"
+                android:name="androidx.core.content.FileProvider">
+                <meta-data
+                    android:name="android.support.FILE_PROVIDER_PATHS"
+                    android:resource="@xml/path" />
+            </provider>
+
+        </application>
+
+    </manifest>
+    ```
+
+    - on MainActivity, prepare this code
+
+    ```kotlin
+    private fun getBitmapFromView(view: View) : Bitmap {
+        val returnedBitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(returnedBitmap) // prepare for canvas
+
+        //if there's a background, draw on the canvas
+        val bgDrawable = view.background
+        if(bgDrawable != null) {
+            bgDrawable.draw(canvas)
+        } else {
+            canvas.drawColor(Color.WHITE)
+        }
+        view.draw(canvas)
+        
+        return returnedBitmap
+    }
+    ```
