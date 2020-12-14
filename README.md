@@ -1027,3 +1027,16 @@ private fun cancelProgressDialog() {
     mProgressDialog.dismiss()
 }
 ```
+
+# Share
+
+```kotlin
+// ** Share & Email Functionality **
+MediaScannerConnection.scanFile(this@MainActivity, arrayOf(result), null) { path, uri ->
+    val shareIntent = Intent()
+    shareIntent.action = Intent.ACTION_SEND
+    shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+    shareIntent.type = "image/png"
+    startActivity(Intent.createChooser(shareIntent, "Share"))
+}
+```
